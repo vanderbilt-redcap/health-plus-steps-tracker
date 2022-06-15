@@ -205,9 +205,6 @@ class Fitbit
         // create cURL handle
         $ch = curl_init();
         $user_id = $this->user_id;
-        $now = strtotime($datetime);
-        $base_date = date("Y-m-d", strtotime("-7 days", $now));
-        $end_date = date("Y-m-d", strtotime("-1 day", $now));
         $url = "https://api.fitbit.com/1/user/$user_id/activities/steps/date/$datetime/1d.json";
 
         // set curl options to get fairly active minutes
@@ -224,11 +221,6 @@ class Fitbit
         }
         // close and decode results
         curl_close($ch);
-
-        if (empty($output->access_token)) {
-            // if refresh token invalid, set revoked_by_user
-            return array(false, json_encode($output));
-        }
 
         $output = json_decode($output);
 

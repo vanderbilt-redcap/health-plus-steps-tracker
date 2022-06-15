@@ -124,9 +124,7 @@ class HealthPlusStepsTrackerExternalModule extends AbstractExternalModule
                         #only check date if it's no more than +7 days
                         if ($today <= $seven_days_date) {
                             $steps = $fitbit_obj->get_activity($start_date);
-                            if($steps[1] != null) {
-                                $this->save_steps($project_id, $rid, $start_date,$steps[1]);
-                            }
+                            $this->save_steps($project_id, $rid, $start_date,$steps[1]);
                         }
                         $start_date = date("Y-m-d", strtotime("+1 days", strtotime($start_date)));
                     }
@@ -162,7 +160,11 @@ class HealthPlusStepsTrackerExternalModule extends AbstractExternalModule
         $array_repeat_instances = array();
         $aux = array();
         $aux['date_fitbit'] = $date;
-        $aux['steps_1'] = $steps;
+        if($steps[1] != null && $steps[1] != "") {
+            $aux['steps_1'] = $steps;
+        }else{
+            $aux['steps_1'] = 0;
+        }
         $array_repeat_instances[$rid]['repeat_instances'][$event_id]['step_tracker'][$instanceId] = $aux;
         $results = \REDCap::saveData($project_id, 'array', $array_repeat_instances,'overwrite', 'YMD', 'flat', '', true, true, true, false, true, array(), true, false, 1, false, '');
     }
