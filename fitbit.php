@@ -161,7 +161,7 @@ class Fitbit
     }
 
     private function get_credentials($module) {
-        if (file_exists("C:/vumc/credentials/dpp_fitbit_details.txt")) {
+        if (file_exists("/Applications/XAMPP/htdocs/modules/health-plus-steps-tracker_v1.0.0/health_plus_steps_tracker_fitbit.txt")) {
             $filename = "/Applications/XAMPP/htdocs/modules/health-plus-steps-tracker_v1.0.0/health_plus_steps_tracker_fitbit.txt";
         }else{
             $filename = "/app001/credentials/health_plus_steps_tracker_fitbit.txt";
