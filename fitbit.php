@@ -161,7 +161,12 @@ class Fitbit
     }
 
     private function get_credentials($module) {
-        $credentials = json_decode(file_get_contents("/Applications/XAMPP/htdocs/modules/health-plus-steps-tracker_v1.0.0/health_plus_steps_tracker_fitbit.txt"));
+        if (file_exists("C:/vumc/credentials/dpp_fitbit_details.txt")) {
+            $filename = "/Applications/XAMPP/htdocs/modules/health-plus-steps-tracker_v1.0.0/health_plus_steps_tracker_fitbit.txt";
+        }else{
+            $filename = "/app001/credentials/health_plus_steps_tracker_fitbit.txt";
+        }
+        $credentials = json_decode(file_get_contents($filename));
         $credentials->redirect_uri = $module->getUrl("fitbit_users.php?page=fitbit_users&NOAUTH");
         return $credentials;
     }
