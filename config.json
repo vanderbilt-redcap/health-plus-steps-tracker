@@ -1,0 +1,55 @@
+{
+  "name": "Health Plus Steps Tracker",
+  "namespace": "Vanderbilt\\HealthPlusStepsTrackerExternalModule",
+  "framework-version": 6,
+  "description": "REDCap external module to keep track of Fitbit Steps Data.",
+  "documentation": "README.md",
+  "authors": [
+    {
+      "name": "Eva Bascompte Moragas",
+      "email": "datacore@vumc.org",
+      "institution": "Vanderbilt University Medical Center"
+    }
+  ],
+  "permissions": ["redcap_survey_acknowledgement_page"],
+  "enable-every-page-hooks-on-system-pages": false,
+  "links": {
+    "project": [
+      {
+        "name": "Health Plus Steps Tracker",
+        "icon": "arrow_right",
+        "url": "testing_page"
+      }
+    ],
+    "control-center": []
+  },
+  "no-auth-pages": ["fitbit_users"],
+  "project-settings": [
+    {
+      "key": "start_date",
+      "name": "Start date of the challenge",
+      "type": "date"
+    },
+    {
+      "key": "end_date",
+      "name": "End date of the challenge",
+      "type": "date"
+    }
+  ],
+  "system-settings": [],
+  "crons": [
+    {
+      "cron_name": "update_steps",
+      "cron_description": "Cron that runs every night at 23:55h to update the steps information",
+      "method": "update_steps",
+      "cron_hour": 23,
+      "cron_minute": 55
+    }
+  ],
+  "compatibility": {
+    "php-version-min": "7.3.29",
+    "php-version-max": "",
+    "redcap-version-min": "12.2.7",
+    "redcap-version-max": ""
+  }
+}
