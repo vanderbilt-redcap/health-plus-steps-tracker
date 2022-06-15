@@ -113,20 +113,22 @@ class HealthPlusStepsTrackerExternalModule extends AbstractExternalModule
             $end_date_seven_days_date = date("Y-m-d",strtotime("+7 days",strtotime($this->getProjectSetting('end_date',$project_id))));
             $today = date ("Y-m-d");
 
-            $record_ids = json_decode(\REDCap::getData($project_id,'json',null,'record_id'));
-            foreach($record_ids as $record) {
-                $rid = $record->record_id;
-                $fitbit_obj = new \Fitbit($rid, $this,$project_id);
-                #If the today is in the date range OR we need to check after +7 days for updates
-                if ((strtotime($today) >= strtotime($start_date) && strtotime($today) <= strtotime($end_date)) || (strtotime($today) <= strtotime($end_date_seven_days_date))) {
-                    while (strtotime($start_date) <= strtotime($today)) {
-                        $seven_days_date = date("Y-m-d", strtotime("+7 days", strtotime($start_date)));
-                        #only check date if it's no more than +7 days
-                        if ($today <= $seven_days_date) {
-                            $steps = $fitbit_obj->get_activity($start_date);
-                            $this->save_steps($project_id, $rid, $start_date,$steps[1]);
+            if($start_date != "" && $end_date != "") {
+                $record_ids = json_decode(\REDCap::getData($project_id, 'json', null, 'record_id'));
+                foreach ($record_ids as $record) {
+                    $rid = $record->record_id;
+                    $fitbit_obj = new \Fitbit($rid, $this, $project_id);
+                    #If the today is in the date range OR we need to check after +7 days for updates
+                    if ((strtotime($today) >= strtotime($start_date) && strtotime($today) <= strtotime($end_date)) || (strtotime($today) <= strtotime($end_date_seven_days_date))) {
+                        while (strtotime($start_date) <= strtotime($today)) {
+                            $seven_days_date = date("Y-m-d", strtotime("+7 days", strtotime($start_date)));
+                            #only check date if it's no more than +7 days
+                            if ($today <= $seven_days_date) {
+                                $steps = $fitbit_obj->get_activity($start_date);
+                                $this->save_steps($project_id, $rid, $start_date, $steps[1]);
+                            }
+                            $start_date = date("Y-m-d", strtotime("+1 days", strtotime($start_date)));
                         }
-                        $start_date = date("Y-m-d", strtotime("+1 days", strtotime($start_date)));
                     }
                 }
             }
