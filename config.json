@@ -13,16 +13,6 @@
   ],
   "permissions": ["redcap_survey_acknowledgement_page"],
   "enable-every-page-hooks-on-system-pages": false,
-  "links": {
-    "project": [
-      {
-        "name": "Health Plus Steps Tracker",
-        "icon": "arrow_right",
-        "url": "testing_page"
-      }
-    ],
-    "control-center": []
-  },
   "no-auth-pages": ["fitbit_users"],
   "project-settings": [
     {
