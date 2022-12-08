@@ -79,7 +79,7 @@ class HealthPlusStepsTrackerExternalModule extends AbstractExternalModule
             $datai = $instance_data[$rid]['repeat_instances'][$event_id]['step_tracker'];
 			
 			## Set default value for $datai to prevent PHP8 errors
-			$datai ??= [];
+			$datai = $datai ?: [];
             foreach ($datai as $instance => $instance_data){
                 if($instance_data['date_fitbit'] == $date){
                     $instanceId = $instance;
