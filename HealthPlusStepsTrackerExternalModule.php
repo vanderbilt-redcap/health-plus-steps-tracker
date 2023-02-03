@@ -41,22 +41,22 @@ class HealthPlusStepsTrackerExternalModule extends AbstractExternalModule
             if($start_date != "" && $end_date != "") {
                 $record_ids = json_decode(\REDCap::getData($project_id, 'json', null, 'record_id'));
                 foreach ($record_ids as $record) {
+					$current_date = $start_date;
                     $rid = $record->record_id;
                     $fitbit_obj = new \Fitbit($rid, $this, $project_id);
-					
 					if($fitbit_obj && $fitbit_obj->access_token) {
 						#If the today is in the date range OR we need to check after +7 days for updates
 						if ((strtotime($today) >= strtotime($start_date) && strtotime($today) <= strtotime($end_date)) || (strtotime($today) <= strtotime($end_date_seven_days_date))) {
-							while (strtotime($start_date) <= strtotime($today)) {
-								$seven_days_date = date("Y-m-d", strtotime("+7 days", strtotime($start_date)));
+							while (strtotime($current_date) <= strtotime($today)) {
+								$seven_days_date = date("Y-m-d", strtotime("+7 days", strtotime($current_date)));
 								#only check date if it's no more than +7 days
 								if ($today <= $seven_days_date) {
-									$steps = $fitbit_obj->get_activity($start_date);
+									$steps = $fitbit_obj->get_activity($current_date);
 									if($steps[0] && $steps[1]) {
-										$this->save_steps($project_id, $rid, $start_date, $steps[1]);
+										$this->save_steps($project_id, $rid, $current_date, $steps[1]);
 									}
 								}
-								$start_date = date("Y-m-d", strtotime("+1 days", strtotime($start_date)));
+								$current_date = date("Y-m-d", strtotime("+1 days", strtotime($current_date)));
 							}
 						}
 					}
