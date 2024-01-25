@@ -16,7 +16,7 @@ class HealthPlusStepsTrackerExternalModule extends AbstractExternalModule
     function redcap_survey_acknowledgement_page($project_id, $record, $instrument, $event_id){
         include_once("fitbit.php");
 
-        $q = $this->query("SELECT value FROM redcap_data WHERE project_id=? AND field_name=? AND record=?",[$project_id,'options',$record]);
+        $q = $this->query("SELECT value FROM ".$this->getDataTable($project_id)." WHERE project_id=? AND field_name=? AND record=?",[$project_id,'options',$record]);
         $row = $q->fetch_assoc();
 		if ($instrument == 'registration' && $row['value'] == '3') {
             $fitbit = new \Fitbit($record,$this,$project_id);
@@ -28,6 +28,10 @@ class HealthPlusStepsTrackerExternalModule extends AbstractExternalModule
                     parent.location.href = "'.$hyperlink .'"
                 </script>';
         }
+    }
+
+    function getDataTable($project_id){
+        return method_exists('\REDCap', 'getDataTable') ? \REDCap::getDataTable($project_id) : "redcap_data";
     }
 
     function update_steps($cronAttributes){
