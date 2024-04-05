@@ -1,5 +1,7 @@
 <?php
 
+namespace Vanderbilt\HealthPlusStepsTrackerExternalModule;
+
 class Fitbit
 {
     function __construct($rid,$module,$project_id)
