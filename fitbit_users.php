@@ -1,4 +1,6 @@
 <?php
+use Vanderbilt\HealthPlusStepsTrackerExternalModule\Fitbit;
+
 include_once("fitbit.php");
 
 $arr = explode(" ", $_GET["state"]);
@@ -14,7 +16,7 @@ foreach($record_ids as $record) {
     }
 }
 
-$fitbit = new \Fitbit($target_rid,$module,$project_id);
+$fitbit = new Fitbit($target_rid,$module,$project_id);
 $arr = $fitbit->link_account($project_id);
 
 if ($arr[0] === true) {
