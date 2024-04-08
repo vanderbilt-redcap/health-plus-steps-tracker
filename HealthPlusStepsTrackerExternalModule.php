@@ -34,18 +34,22 @@ class HealthPlusStepsTrackerExternalModule extends AbstractExternalModule
         return method_exists('\REDCap', 'getDataTable') ? \REDCap::getDataTable($project_id) : "redcap_data";
     }
 
-    function update_steps($cronAttributes){
+    function update_steps($cronAttributes,$individualProject = false){
         include_once("fitbit.php");
 		$today = time();
 		
 		foreach ($this->getProjectsWithModuleEnabled() as $project_id) {
+			if($individualProject !== false && $project_id != $individualProject) {
+				continue;
+			}
             $start_date = date("Y-m-d",strtotime($this->getProjectSetting('start_date',$project_id)));
             $end_date = date("Y-m-d",strtotime($this->getProjectSetting('end_date',$project_id)));
 	
-			$seven_days_date = date("Y-m-d", strtotime("+1007 days", strtotime($end_date)));
+			$seven_days_date = date("Y-m-d", strtotime("+7 days", strtotime($end_date)));
 			
 			if($start_date != "" && $end_date != "" &&
-					$today < strtotime($seven_days_date)) {
+					$today > strtotime($start_date) &&
+					($individualProject !== false || $today < strtotime($seven_days_date))) {
                 $record_ids = \REDCap::getData($project_id, 'json-array', null, 'record_id');
                 foreach ($record_ids as $record) {
                     $rid = $record["record_id"];
@@ -100,9 +104,6 @@ class HealthPlusStepsTrackerExternalModule extends AbstractExternalModule
 			$array_repeat_instances[$rid]['repeat_instances'][$event_id]['step_tracker'][$instanceId] = $aux;
 		}
         $results = \REDCap::saveData($project_id, 'array', $array_repeat_instances,'overwrite', 'YMD', 'flat', '', true, true, true, false, true, array(), true, false, 1, false, '');
-		echo "<br /><pre>";
-		var_dump($results);
-		echo "</pre><br />";
     }
 }
 ?>
