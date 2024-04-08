@@ -54,7 +54,7 @@ class Fitbit
 		$projectData = self::getCachedAuthData($project_id);
 		
 		$authValue = false;
-		if(array_key_exits($this->rid,$projectData)) {
+		if(array_key_exists($this->rid,$projectData)) {
 			$authValue = $projectData[$this->rid];
 		}
 		
@@ -68,7 +68,7 @@ class Fitbit
         }
     }
 
-    function make_auth_link($module) {
+    function make_auth_link() {
         // make anti-csrf token, store in db
         if (empty($this->nonce))
             $this->nonce = generateRandomHash(64);
@@ -76,7 +76,7 @@ class Fitbit
         // make record id hash value
         $rhash = md5("hpst" . $this->rid);
 
-        $fitbit_api = $this->get_credentials($module);
+        $fitbit_api = $this->get_credentials();
 
         $fitbit_auth_url = "https://www.fitbit.com/oauth2/authorize";
         // response_type
@@ -106,7 +106,7 @@ class Fitbit
         // POST via curl to authorize and get access and refresh token
         $ch = curl_init();
         $url = "https://api.fitbit.com/oauth2/token";
-        $credentials = $this->get_credentials($this->module);
+        $credentials = $this->get_credentials();
         $secrets = base64_encode($credentials->client_id . ":" . $credentials->client_secret);
         $post_params = http_build_query([
             "code" => filter_var($_GET['code'], FILTER_SANITIZE_STRING),
@@ -165,7 +165,7 @@ class Fitbit
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_params);
 
-        $fitbit_api = $this->get_credentials($this->module);
+        $fitbit_api = $this->get_credentials();
         $secrets = base64_encode($fitbit_api->client_id . ":" . $fitbit_api->client_secret);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             "Authorization: Basic $secrets",
@@ -193,21 +193,20 @@ class Fitbit
         return $result;
     }
 
-    private function get_credentials($module) {
+    private function get_credentials() {
         if (file_exists("/var/credentials/health_plus_credentials.txt")) {
             $filename = "/var/credentials/health_plus_credentials.txt";
         }else{
             $filename = "/app001/credentials/health_plus_steps_tracker_fitbit.txt";
         }
         $credentials = json_decode(file_get_contents($filename));
-        $credentials->redirect_uri = $module->getUrl("fitbit_users.php?page=fitbit_users&NOAUTH");
+        $credentials->redirect_uri = self::getModuleInstance()->getUrl("fitbit_users.php?page=fitbit_users&NOAUTH");
         return $credentials;
     }
 
     public function save($project_id) {
         // this function take current fitbit state and save applicable fields/data to db (for user: $this->rid)
         $value = clone $this;
-        unset($value->module);
         $value = json_encode($value);
 
         // see if we should insert, prepare values string
@@ -215,18 +214,18 @@ class Fitbit
         $Proj = new \Project($project_id);
         $event_id = $Proj->firstEventId;
 
-        $q = $this->module->query("SELECT value FROM ".$this->module->getDataTable($project_id)."
+        $q = self::getModuleInstance()->query("SELECT value FROM ".self::getModuleInstance()->getDataTable($project_id)."
 				WHERE project_id=?
 				  AND field_name=?
 				  AND record=?",
 			[$project_id,'fitbit_steps_auth',$rid]);
         if (empty($q->fetch_assoc())) {
-            $q = $this->module->query("INSERT INTO ".$this->module->getDataTable($project_id)."
+            $q = self::getModuleInstance()->query("INSERT INTO ".self::getModuleInstance()->getDataTable($project_id)."
     				(project_id, record, event_id, field_name, value)
     				VALUES (?,?,?,?,?)",
 				[$project_id,$rid,$event_id,'fitbit_steps_auth',$value]);
         }else{
-            $q = $this->module->query("UPDATE ".$this->module->getDataTable($project_id)."
+            $q = self::getModuleInstance()->query("UPDATE ".self::getModuleInstance()->getDataTable($project_id)."
 					SET value = ?
 					WHERE project_id=?
 					  and field_name=?

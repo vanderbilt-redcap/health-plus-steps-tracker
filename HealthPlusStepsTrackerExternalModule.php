@@ -19,7 +19,7 @@ class HealthPlusStepsTrackerExternalModule extends AbstractExternalModule
         $q = $this->query("SELECT value FROM ".$this->getDataTable($project_id)." WHERE project_id=? AND field_name=? AND record=?",[$project_id,'options',$record]);
         $row = $q->fetch_assoc();
 		if ($instrument == 'registration' && $row['value'] == '3') {
-            $fitbit = new Fitbit($record,$this,$project_id);
+            $fitbit = new Fitbit($record,$project_id);
             if (!$fitbit->auth_timestamp) {
                 $hyperlink = $fitbit->make_auth_link($this);
 
@@ -53,7 +53,7 @@ class HealthPlusStepsTrackerExternalModule extends AbstractExternalModule
                 $record_ids = \REDCap::getData($project_id, 'json-array', null, 'record_id');
                 foreach ($record_ids as $record) {
                     $rid = $record["record_id"];
-                    $fitbit_obj = new Fitbit($rid, $this, $project_id);
+                    $fitbit_obj = new Fitbit($rid, $project_id);
 					if($fitbit_obj && $fitbit_obj->access_token) {
 						$steps = $fitbit_obj->get_activity($start_date,$end_date);
 						if($steps !== false) {
