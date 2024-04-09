@@ -8,11 +8,6 @@ use ExternalModules\ExternalModules;
 class HealthPlusStepsTrackerExternalModule extends AbstractExternalModule
 {
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
     function redcap_survey_acknowledgement_page($project_id, $record, $instrument, $event_id){
         include_once("fitbit.php");
 

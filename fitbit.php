@@ -38,12 +38,25 @@ class Fitbit
 		if(!array_key_exists($projectId, self::$cachedAuthData)) {
 			self::$cachedAuthData[$projectId] = [];
 			
-			$sql = "SELECT record,value FROM ".self::getModuleInstance()->getDataTable($projectId)."
+			## At one point, had some errors from not pointing to the correct data table
+			## need to see if data exists on old table before checking correct data table
+			$sql = "SELECT record,value FROM redcap_data
 					WHERE project_id=? AND field_name=?";
 			$q = self::getModuleInstance()->query($sql,[$projectId,'fitbit_steps_auth']);
 			
 			while($row = db_fetch_assoc($q)) {
 				self::$cachedAuthData[$projectId][$row["record"]] = $row["value"];
+			}
+			
+			## Overwrite if data exists on correct data table
+			$sql = "SELECT record,value FROM ".self::getModuleInstance()->getDataTable($projectId)."
+					WHERE project_id=? AND field_name=?";
+			$q = self::getModuleInstance()->query($sql,[$projectId,'fitbit_steps_auth']);
+			
+			while($row = db_fetch_assoc($q)) {
+				if($row["value"] !== NULL && $row["value"] !== "") {
+					self::$cachedAuthData[$projectId][$row["record"]] = $row["value"];
+				}
 			}
 		}
 		
