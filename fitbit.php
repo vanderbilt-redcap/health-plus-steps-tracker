@@ -54,7 +54,9 @@ class Fitbit
 			$q = self::getModuleInstance()->query($sql,[$projectId,'fitbit_steps_auth']);
 			
 			while($row = db_fetch_assoc($q)) {
-				self::$cachedAuthData[$projectId][$row["record"]] = $row["value"];
+				if($row["value"] !== NULL && $row["value"] !== "") {
+					self::$cachedAuthData[$projectId][$row["record"]] = $row["value"];
+				}
 			}
 		}
 		
