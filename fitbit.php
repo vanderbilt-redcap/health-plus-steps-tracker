@@ -281,9 +281,7 @@ class Fitbit
 
         $output = json_decode($output, true);
 
-        // get number of steps
-		
-		if(array_key_exists("activities-steps", $output)) {
+		if(is_array($output) && array_key_exists("activities-steps", $output)) {
         	return $output['activities-steps'];
 		}
 		return false;
