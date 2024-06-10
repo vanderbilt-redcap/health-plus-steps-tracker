@@ -30,10 +30,14 @@ class HealthPlusStepsTrackerExternalModule extends AbstractExternalModule
     }
 
     function update_steps($cronAttributes,$individualProject = false){
+		error_log("Running fitbit update<Br >");
         include_once("fitbit.php");
+		
+		$this->framework->batching->startTimeout(1);
 		$today = time();
 		
 		foreach ($this->getProjectsWithModuleEnabled() as $project_id) {
+			error_log("Running for project $project_id");
 			if($individualProject !== false && $project_id != $individualProject) {
 				continue;
 			}
@@ -42,18 +46,31 @@ class HealthPlusStepsTrackerExternalModule extends AbstractExternalModule
 	
 			$seven_days_date = date("Y-m-d", strtotime("+7 days", strtotime($end_date)));
 			
+			error_log("Comparing dates $start_date, $end_date and $today");
 			if($start_date != "" && $end_date != "" &&
 					$today > strtotime($start_date) &&
 					($individualProject !== false || $today < strtotime($seven_days_date))) {
                 $record_ids = \REDCap::getData($project_id, 'json-array', null, 'record_id');
                 foreach ($record_ids as $record) {
                     $rid = $record["record_id"];
-                    $fitbit_obj = new Fitbit($rid, $project_id);
+					if($this->framework->batching->checkBatch("fitbit",$rid,$project_id)) {
+						error_log("Skipping record $rid");
+						continue;
+					}
+	
+					error_log("Checking record $rid");
+					$fitbit_obj = new Fitbit($rid, $project_id);
 					if($fitbit_obj && $fitbit_obj->access_token) {
 						$steps = $fitbit_obj->get_activity($start_date,$end_date);
 						if($steps !== false) {
 							$this->save_steps($project_id, $rid, $steps);
 						}
+					}
+					
+					$this->framework->batching->completeBatch("fitbit",$rid,$project_id);
+					
+					if($this->framework->batching->checkTimeout()) {
+						return;
 					}
                 }
             }

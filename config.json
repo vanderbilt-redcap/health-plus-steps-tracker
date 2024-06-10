@@ -32,8 +32,8 @@
       "cron_name": "update_steps",
       "cron_description": "Cron that runs every night at 23:55h to update the steps information",
       "method": "update_steps",
-      "cron_frequency": "43200",
-      "cron_max_run_time": "600"
+      "cron_frequency": "120",
+      "cron_max_run_time": "60"
     }
   ],
   "compatibility": {
